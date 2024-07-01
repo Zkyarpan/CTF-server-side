@@ -13,7 +13,7 @@ const topicSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: true,
-      enum: ["Easy", "Medium", "Hard", "Advandced"],
+      enum: ["Easy", "Medium", "Hard", "Advanced"],
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
