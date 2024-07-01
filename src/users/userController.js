@@ -175,7 +175,7 @@ const getAllUsers = async (req, res, next) => {
   }
 
   const skip = (page - 1) * limit;
-  
+
   try {
     const users = await userModel.aggregate([
       {
@@ -189,7 +189,7 @@ const getAllUsers = async (req, res, next) => {
     const totalUsers = users[0].totalCount[0]?.count || 0;
     const totalPages = Math.ceil(totalUsers / limit);
 
-    const formattedUsers = users[0].data; // No need for .map() or .toObject()
+    const formattedUsers = users[0].data;
 
     res.json({
       StatusCode: 200,
@@ -212,7 +212,6 @@ const getAllUsers = async (req, res, next) => {
     );
   }
 };
-
 
 const options = {
   httpOnly: true,
