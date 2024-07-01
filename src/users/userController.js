@@ -226,7 +226,15 @@ const getUserById = async (req, res, next) => {
     if (!user) {
       return next(createError(400, "User not found."));
     }
-    res.json(user);
+    res.json({
+      StatusCode: 200,
+      IsSuccess: true,
+      ErrorMessage: [],
+      Result: {
+        message: "User deleted successfully",
+        user_data: user,
+      },
+    });
   } catch (error) {
     return next(createError(500, "Server error while fetch user by ID."));
   }
