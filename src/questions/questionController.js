@@ -60,22 +60,53 @@ const createQuestionSet = async (req, res, next) => {
 };
 
 const getAllQuestion = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+
+  if (limit > 5) {
+    return res.status(400).json({
+      StatusCode: 400,
+      IsSuccess: false,
+      ErrorMessage: "Limit cannot exceed more than 5",
+    });
+  }
+
+  const skip = (page - 1) * limit;
+  console.log(skip);
+
   try {
-    const allQuestion = await questionModel.find({});
+    const questions = await questionModel.aggregate([
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: "count" }],
+        },
+      },
+    ]);
+
+    const totalQuestions = questions[0].totalCount[0]?.count || 0;
+    const totalPages = Math.ceil(totalQuestions / limit);
+
     res.status(200).json({
       StatusCode: 200,
       IsSuccess: true,
       ErrorMessage: [],
       Result: {
         message: "Successfully fetched all questions",
-        questions: allQuestion,
+        questions: questions[0].data,
+        pagination: {
+          totalQuestions,
+          totalPages,
+          currentPage: page,
+          pageSize: limit,
+        },
       },
     });
   } catch (error) {
     next(
       createError(
         500,
-        `Server Error while fetching all questions.${error.message}`
+        `Server Error while fetching all questions. ${error.message}`
       )
     );
   }
