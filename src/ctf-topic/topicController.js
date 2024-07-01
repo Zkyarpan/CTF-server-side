@@ -44,7 +44,7 @@ const createTopic = async (req, res, next) => {
   }
 };
 
-const getTopic = async (req, res, next) => {
+const getAllTopic = async (req, res, next) => {
   try {
     const topics = await topicModel.find({});
     const message =
@@ -95,7 +95,7 @@ const getSingleTopic = async (req, res, next) => {
   }
 };
 
-const updateTopic = async (req, res, next) => {
+const updateTopicById = async (req, res, next) => {
   const { id } = req.params;
   const { topic, description, difficulty } = req.body;
   const updatedBy = new mongoose.Types.ObjectId(req.user.sub);
@@ -127,7 +127,7 @@ const updateTopic = async (req, res, next) => {
   }
 };
 
-const deleteTopic = async (req, res, next) => {
+const deleteTopicById = async (req, res, next) => {
   const { id } = req.params;
   try {
     const deletedTopic = await topicModel.findByIdAndDelete(id);
@@ -155,8 +155,8 @@ const deleteTopic = async (req, res, next) => {
 
 module.exports = {
   createTopic,
-  getTopic,
+  getAllTopic,
   getSingleTopic,
-  updateTopic,
-  deleteTopic,
+  updateTopicById,
+  deleteTopicById,
 };

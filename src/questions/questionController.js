@@ -72,7 +72,6 @@ const getAllQuestion = async (req, res, next) => {
   }
 
   const skip = (page - 1) * limit;
-  console.log(skip);
 
   try {
     const questions = await questionModel.aggregate([
