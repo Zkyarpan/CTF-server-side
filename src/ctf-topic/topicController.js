@@ -45,10 +45,33 @@ const createTopic = async (req, res, next) => {
 };
 
 const getAllTopic = async (req, res, next) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+
+  if (limit > 5) {
+    return res.status(400).json({
+      StatusCode: 400,
+      IsSuccess: false,
+      ErrorMessage: "Limit cannot exceed more than 5",
+    });
+  }
+
+  const skip = (page - 1) * limit;
+
   try {
-    const topics = await topicModel.find({});
+    const topics = await topicModel.aggregate([
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: "count" }],
+        },
+      },
+    ]);
+
+    const totalTopics = topics[0].totalCount[0]?.count || 0;
+    const totalPages = Math.ceil(totalTopics / limit);
     const message =
-      topics.length <= 0
+      topics[0].data.length <= 0
         ? "No topics were created"
         : "Successfully fetched all topics";
 
@@ -58,7 +81,13 @@ const getAllTopic = async (req, res, next) => {
       ErrorMessage: [],
       Result: {
         message,
-        Topics: topics,
+        Topics: topics[0].data,
+        pagination: {
+          totalTopics,
+          totalPages,
+          currentPage: page,
+          pageSize: limit,
+        },
       },
     });
   } catch (error) {
