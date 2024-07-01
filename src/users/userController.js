@@ -163,14 +163,33 @@ const refreshAccessToken = async (req, res, next) => {
 };
 
 const getAllUsers = async (req, res, next) => {
-  try {
-    const user = await userModel.find({});
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
 
-    const users = user.map((user) => {
-      const userObj = user.toObject();
-      delete userObj.password;
-      return userObj;
+  if (limit > 5) {
+    return res.status(400).json({
+      StatusCode: 400,
+      IsSuccess: false,
+      ErrorMessage: "Limit cannot exceed more than 5",
     });
+  }
+
+  const skip = (page - 1) * limit;
+  
+  try {
+    const users = await userModel.aggregate([
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: "count" }],
+        },
+      },
+    ]);
+
+    const totalUsers = users[0].totalCount[0]?.count || 0;
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    const formattedUsers = users[0].data; // No need for .map() or .toObject()
 
     res.json({
       StatusCode: 200,
@@ -178,7 +197,13 @@ const getAllUsers = async (req, res, next) => {
       ErrorMessage: [],
       Result: {
         message: "Successfully fetched all users",
-        All_user: users,
+        All_users: formattedUsers,
+        pagination: {
+          totalUsers,
+          totalPages,
+          currentPage: page,
+          pageSize: limit,
+        },
       },
     });
   } catch (error) {
@@ -187,6 +212,7 @@ const getAllUsers = async (req, res, next) => {
     );
   }
 };
+
 
 const options = {
   httpOnly: true,
