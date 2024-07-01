@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+
+
 const userModelSchema = new mongoose.Schema(
   {
     fullname: {
@@ -41,5 +43,4 @@ const userModelSchema = new mongoose.Schema(
 );
 
 const UserModel = mongoose.model("User", userModelSchema);
-
 module.exports = UserModel;
