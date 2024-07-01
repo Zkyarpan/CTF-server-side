@@ -102,7 +102,6 @@ const loginUser = async (req, res, next) => {
       sameSite: "Strict",
       maxAge: 30 * 60 * 1000,
     });
-    user.refreshToken = refreshToken;
     try {
       await user.save();
     } catch (error) {
@@ -111,7 +110,6 @@ const loginUser = async (req, res, next) => {
 
     const userObj = user.toObject();
     delete userObj.password;
-    delete userObj.refreshToken;
 
     res.status(200).json({
       StatusCode: 200,
@@ -165,17 +163,26 @@ const refreshAccessToken = async (req, res, next) => {
 const getAllUsers = async (req, res, next) => {
   try {
     const user = await userModel.find({});
+
+    const users = user.map((user) => {
+      const userObj = user.toObject();
+      delete userObj.password;
+      return userObj;
+    });
+
     res.json({
       StatusCode: 200,
       IsSuccess: true,
       ErrorMessage: [],
       Result: {
-        message: "Successfully fetch all users",
-        All_user: user,
+        message: "Successfully fetched all users",
+        All_user: users,
       },
     });
   } catch (error) {
-    return next(createError(500, "Server error while fetching users."));
+    return next(
+      createError(500, `Server error while fetching users. ${error.message}`)
+    );
   }
 };
 
@@ -223,6 +230,9 @@ const getUserById = async (req, res, next) => {
   const userId = req.params.id;
   try {
     const user = await userModel.findById(userId);
+    const userObj = user.toObject();
+    delete userObj.password;
+
     if (!user) {
       return next(createError(400, "User not found."));
     }
@@ -232,7 +242,7 @@ const getUserById = async (req, res, next) => {
       ErrorMessage: [],
       Result: {
         message: "User deleted successfully",
-        user_data: user,
+        user_data: userObj,
       },
     });
   } catch (error) {
