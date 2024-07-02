@@ -18,11 +18,7 @@ const {
 const questionRouter = express.Router();
 
 questionRouter.post("/create", authenticateToken, isAdmin, createQuestionSet);
-questionRouter.get(
-  "/getAllQuestion",
-  authenticateToken,
-  getAllQuestion
-);
+questionRouter.get("/getAllQuestion", authenticateToken, getAllQuestion);
 
 questionRouter.post(
   "/update/:id",
