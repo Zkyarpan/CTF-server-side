@@ -14,10 +14,10 @@ const {
 const questionRouter = express.Router();
 
 questionRouter.post("/create", authenticateToken, isAdmin, createQuestionSet);
+
 questionRouter.get(
   "/getAllQuestion",
   authenticateToken,
-  isAdmin,
   getAllQuestion
 );
 
