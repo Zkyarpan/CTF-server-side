@@ -86,6 +86,10 @@ const getAllQuestion = async (req, res, next) => {
     const totalQuestions = questions[0].totalCount[0]?.count || 0;
     const totalPages = Math.ceil(totalQuestions / limit);
 
+    if (page > totalPages) {
+      return next(createError(400, `Invalid Page Number`));
+    }
+
     res.status(200).json({
       StatusCode: 200,
       IsSuccess: true,
